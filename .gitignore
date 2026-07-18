@@ -1,0 +1,24 @@
+# 基座模型（太大，用户自己从 HuggingFace 下载）
+models/
+
+# 训练输出
+output/
+wandb/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# 环境变量
+.env
+
+# 系统文件
+.DS_Store
+Thumbs.db

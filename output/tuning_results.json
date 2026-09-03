@@ -1,0 +1,101 @@
+[
+  {
+    "name": "r04-a16-lr2e4-ep3",
+    "r": 4,
+    "alpha": 16,
+    "lr": 0.0002,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.0705,
+    "final_loss": 2.3316,
+    "runtime_s": 135.8
+  },
+  {
+    "name": "r04-a32-lr2e4-ep3",
+    "r": 4,
+    "alpha": 32,
+    "lr": 0.0002,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.0705,
+    "final_loss": 2.226,
+    "runtime_s": 127.7
+  },
+  {
+    "name": "r08-a32-lr2e4-ep3",
+    "r": 8,
+    "alpha": 32,
+    "lr": 0.0002,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.141,
+    "final_loss": 2.0049,
+    "runtime_s": 139.5
+  },
+  {
+    "name": "r16-a32-lr2e4-ep3",
+    "r": 16,
+    "alpha": 32,
+    "lr": 0.0002,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.2815,
+    "final_loss": 1.7783,
+    "runtime_s": 151.5
+  },
+  {
+    "name": "r08-a64-lr2e4-ep3",
+    "r": 8,
+    "alpha": 64,
+    "lr": 0.0002,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.141,
+    "final_loss": 1.9929,
+    "runtime_s": 157.1
+  },
+  {
+    "name": "r08-a32-lr1e4-ep3",
+    "r": 8,
+    "alpha": 32,
+    "lr": 0.0001,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.141,
+    "final_loss": 2.4201,
+    "runtime_s": 138.1
+  },
+  {
+    "name": "r08-a32-lr5e4-ep3",
+    "r": 8,
+    "alpha": 32,
+    "lr": 0.0005,
+    "epochs": 3,
+    "dropout": 0.05,
+    "trainable%": 0.141,
+    "final_loss": 1.68,
+    "runtime_s": 145.9
+  },
+  {
+    "name": "r08-a32-lr2e4-ep5",
+    "r": 8,
+    "alpha": 32,
+    "lr": 0.0002,
+    "epochs": 5,
+    "dropout": 0.05,
+    "trainable%": 0.141,
+    "final_loss": 1.4531,
+    "runtime_s": 247.2
+  },
+  {
+    "name": "r16-a64-lr1e4-ep5",
+    "r": 16,
+    "alpha": 64,
+    "lr": 0.0001,
+    "epochs": 5,
+    "dropout": 0.1,
+    "trainable%": 0.2815,
+    "final_loss": 1.4918,
+    "runtime_s": 269.7
+  }
+]

@@ -1,8 +1,11 @@
 # 基座模型（太大，用户自己从 HuggingFace 下载）
 models/
 
-# 训练输出
-output/
+# 训练输出（忽略模型权重和日志，保留评估结果与可视化）
+output/*
+!output/plots/
+!output/eval_report.json
+!output/tuning_results.json
 wandb/
 
 # Python

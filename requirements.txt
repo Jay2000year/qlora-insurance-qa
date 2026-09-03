@@ -1,0 +1,14 @@
+# QLoRA 微调依赖
+transformers>=4.40
+peft>=0.10
+bitsandbytes>=0.43
+datasets>=2.18
+accelerate>=0.30
+
+# 训练监控与可视化
+tensorboard>=2.16
+matplotlib>=3.8
+
+# PyTorch（按你的 CUDA 版本单独安装，勿直接用 pip install torch）
+# 例如 CUDA 12.1：
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121

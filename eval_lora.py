@@ -10,7 +10,7 @@ QLoRA 微调评估脚本
 - 侧重点：微调后的模型在保险领域变得更专业
 """
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 import json
 import time
@@ -20,7 +20,7 @@ from datetime import datetime
 # 配置
 # ============================================================
 BASE_MODEL_PATH = "d:/llm-project/models/models/qwen--Qwen2.5-1.5B-Instruct/snapshots/master"
-LORA_MODEL_PATH = "d:/llm-project/output/lora-qwen-insurance"
+LORA_MODEL_PATH = "d:/llm-project/output/best_model-r08-a32-lr2e4-ep5"
 OUTPUT_REPORT = "d:/llm-project/output/eval_report.json"
 
 # 测试集：20 条保险领域问题
@@ -57,21 +57,23 @@ print("=" * 60)
 print("加载模型...")
 
 print("  [1/2] 加载基座模型...")
-base_model = AutoModelForCausalLM.from_pretrained(
-    BASE_MODEL_PATH,
-    torch_dtype=torch.float16,
-    device_map="auto",
+quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_compute_dtype=torch.float16,
     bnb_4bit_use_double_quant=True,
 )
+base_model = AutoModelForCausalLM.from_pretrained(
+    BASE_MODEL_PATH,
+    dtype=torch.float16,
+    device_map="auto",
+    quantization_config=quantization_config,
+)
 base_tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_PATH)
 base_tokenizer.pad_token = base_tokenizer.eos_token
 
-print("  [2/2] 加载 LoRA 模型...")
-lora_model = PeftModel.from_pretrained(base_model, LORA_MODEL_PATH)
-# 用同一个 tokenizer
-
+# 注意：不在此处加载 LoRA。
+# PeftModel.from_pretrained 会原地修改 base_model（注入 LoRA 层），
+# 导致 base 与 lora 变成同一模型、评估失效。故先跑完 base 评估再加载 LoRA。
 print("加载完成\n")
 
 
@@ -88,9 +90,7 @@ def generate(model, tokenizer, prompt):
         outputs = model.generate(
             **inputs,
             max_new_tokens=200,
-            temperature=0.7,
-            do_sample=True,
-            top_p=0.9,
+            do_sample=False,  # 贪心解码，保证评估结果可复现
             pad_token_id=tokenizer.eos_token_id,
         )
     latency = time.time() - start
@@ -169,20 +169,31 @@ results = []
 total_base_time = 0
 total_lora_time = 0
 
+# 第一步：先跑基座模型（此时尚未加载 LoRA，避免 base_model 被 PeftModel 原地污染）
+base_answers = {}
+for tc in TEST_CASES:
+    qid = tc["id"]
+    print(f"\n[{qid}/20] {tc['type']} | {tc['question']}  (base)")
+    base_answer, base_time = generate(base_model, base_tokenizer, tc["question"])
+    base_answers[qid] = (base_answer, base_time)
+    total_base_time += base_time
+
+# 加载 LoRA（会原地修改 base_model，但基座答案已保存，不受影响）
+print("\n" + "=" * 60)
+print("加载 LoRA 模型...")
+print("=" * 60)
+lora_model = PeftModel.from_pretrained(base_model, LORA_MODEL_PATH)
+
+# 第二步：跑 LoRA 模型，与已保存的基座答案对比
 for tc in TEST_CASES:
     qid = tc["id"]
     qtype = tc["type"]
     question = tc["question"]
     reference = tc["reference"]
 
-    print(f"\n[{qid}/20] {qtype} | {question}")
-
-    # 基座模型
-    base_answer, base_time = generate(base_model, base_tokenizer, question)
+    base_answer, base_time = base_answers[qid]
     base_metrics = compute_metrics(reference, base_answer)
-    total_base_time += base_time
 
-    # LoRA 模型
     lora_answer, lora_time = generate(lora_model, base_tokenizer, question)
     lora_metrics = compute_metrics(reference, lora_answer)
     total_lora_time += lora_time
@@ -286,7 +297,7 @@ report = {
         "base_model": BASE_MODEL_PATH,
         "lora_model": LORA_MODEL_PATH,
         "num_test_cases": len(TEST_CASES),
-        "lora_rank": 16,
+        "lora_rank": 8,
         "training_data": "100 条保险领域 QA",
         "gpu": "NVIDIA GeForce RTX 4060 Laptop 8GB",
     },
